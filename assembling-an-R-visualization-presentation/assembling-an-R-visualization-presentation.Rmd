@@ -1,0 +1,101 @@
+---
+title: "Assembling an R Visualization Presentation"
+output: pdf_document
+---
+
+```{r include=FALSE}
+# Load library and data
+library(ggplot2)
+library(plyr)
+library(readxl)
+library(wesanderson)
+require(maps)
+data_us <- read_excel("search_term_us.xlsx")
+data_ca <- read_excel("search_term_canada.xlsx")
+data_uk <- read_excel("search_term_uk.xlsx")
+
+df_us <- data.frame(data_us)
+df_ca <- data.frame(data_ca)
+df_uk <- data.frame(data_uk)
+
+knitr::opts_chunk$set(echo = T, results = "hide")
+```
+
+## Mental Health Search Terms
+
+The following graphs show the frequency of search terms related to mental 
+health topics before and during the COVID-19 pandemic.
+
+The data is produced from Google's search term frequency tool and the populations 
+observed are from the U.S., Canada, and the U.K..
+
+### Depression
+
+#### U.S.
+```{r, message=FALSE}
+us <- ggplot(df_us, aes(x = Week, y = depression)) +
+  geom_point(color=wes_palettes$FantasticFox1[5]) +
+  geom_smooth(method = lm, color = wes_palettes$FantasticFox1[4],
+              fill=wes_palettes$FantasticFox1[3]) +
+  labs(title = "U.S. Depression Search Interest")
+
+us
+```
+
+#### Canada
+```{r, message=FALSE}
+ca <- ggplot(df_ca, aes(x = Week, y = depression)) +
+  geom_point(color=wes_palettes$FantasticFox1[5]) +
+  geom_smooth(method = lm, color = wes_palettes$FantasticFox1[4],
+              fill=wes_palettes$FantasticFox1[3]) +
+  labs(title = "Canada Depression Search Interest")
+
+ca
+```
+
+#### U.K.
+```{r, message=FALSE}
+uk <- ggplot(df_uk, aes(x = Week, y = depression)) +
+  geom_point(color=wes_palettes$FantasticFox1[5]) +
+  geom_smooth(method = lm, color = wes_palettes$FantasticFox1[4],
+              fill=wes_palettes$FantasticFox1[3]) +
+  labs(title = "U.K. Depression Search Interest")
+
+uk
+```
+
+### Anxiety and Psychiatry
+
+The following graphs will show the relationship between "anxiety" and "psychiatry" 
+and how often these two search terms appear together with respect to time during 
+the pandemic.
+
+#### U.S.
+```{r, message=FALSE}
+us_psy <- ggplot(df_us, aes(x = Week, y = anxiety, fill = psychiatrist)) +
+  geom_tile() +
+  scale_fill_gradientn(colors = wes_palette("FantasticFox1", type="continuous")) +
+  labs(title = "U.S. Anxiety and Psychiatrist Search Interest")
+
+us_psy
+```
+
+#### Canada
+```{r, message=FALSE}
+ca_psy <- ggplot(df_ca, aes(x = Week, y = anxiety, fill = psychiatrist)) +
+  geom_tile() +
+  scale_fill_gradientn(colors = wes_palette("FantasticFox1", type="continuous")) +
+  labs(title = "Canada Anxiety and Psychiatrist Search Interest")
+
+ca_psy
+```
+
+#### U.K.
+```{r, message=FALSE}
+uk_psy <- ggplot(df_uk, aes(x = Week, y = anxiety, fill = psychiatrist)) +
+  geom_tile() +
+  scale_fill_gradientn(colors = wes_palette("FantasticFox1", type="continuous")) +
+  labs(title = "U.K. Anxiety and Psychiatrist Search Interest")
+
+uk_psy
+```
