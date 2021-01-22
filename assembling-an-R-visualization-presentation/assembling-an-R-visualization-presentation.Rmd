@@ -1,5 +1,6 @@
 ---
-title: "Assembling an R Visualization Presentation"
+title: "COVID-19 Mental Health Search Terms"
+author: "Bruno Salgado"
 output: pdf_document
 ---
 
