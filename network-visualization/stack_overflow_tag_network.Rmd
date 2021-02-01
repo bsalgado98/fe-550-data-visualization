@@ -1,0 +1,105 @@
+---
+title: "Stack Overflow Tag Network"
+author: "Bruno Salgado"
+date: "1/31/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 15, fig.height = 10)
+library(ggplot2)
+library(readr)
+library(igraph)
+library(ggraph)
+library(tidyverse)
+library(wesanderson)
+
+nodes <- read.csv("./stack_network_nodes.csv")
+edges <- read.csv("./stack_network_links.csv")
+
+graph <- graph_from_data_frame(d = edges, vertices = nodes, directed = FALSE)
+
+pal <- wes_palette("IsleofDogs1")
+```
+
+## Introduction
+
+Stack Overflow is an online forum centered around users asking and answering each
+others' questions surrounding different topics in the software engineering field.
+
+Users can add tags to their question to highlight the main programming language
+or technology that their question is about. For example, if a user asked a
+question about using databases in C++, they might include tags such as "databases"
+and "c++."
+
+This report aims to demonstrate how tags on the website are related to each other
+and visualize all the different connections the topics have when questions are
+asked about them.
+
+# Network Topology
+
+To get a general idea of how the Stack Overflow tags are related to each other,
+this figure presents the entire unadulterated network topology. Notice the
+independent clusters that form outside of the main group.
+
+```{r}
+ggraph(graph, layout = 'stress') +
+  geom_edge_link(aes(colour = factor(value)), show.legend = FALSE) +
+  geom_node_point() +
+  theme_graph(background = pal[4], text_colour = pal[5])
+```
+
+# Chord Diagram
+
+This chord diagram shows the relationship between topics and specifically how
+each topic flows from one to another.
+
+```{r}
+V(graph)$id=NA
+myleaves=which(is.na( match(V(graph)$name, E(graph)$from) ))
+nleaves=length(myleaves)
+V(graph)$id[ myleaves ] = seq(1:nleaves)
+V(graph)$angle= 90 - 360 * V(graph)$id / nleaves
+V(graph)$angle<-ifelse(V(graph)$angle < -90, V(graph)$angle+180, V(graph)$angle)
+
+ggraph(graph, layout = "linear", circular = TRUE) +
+  geom_edge_arc(aes(width = value, edge_colour = factor(value)), show.legend = FALSE, alpha = 0.5) +
+  geom_node_point(aes(color = factor(group), size = nodesize * 51)) +
+  geom_node_text(aes(label = name, angle = V(graph)$angle), hjust = "outward", size = 4, color = pal[5]) + 
+  theme_graph(background = pal[4], text_colour = pal[5]) +
+  expand_limits(x = c(-1.2, 1.2))
+```
+
+# Arc Diagram
+
+Finally, this arc diagram illustrates the connection between the tags on a
+one-dimensional axis.
+
+```{r}
+ggraph(graph, layout = "linear") +
+  geom_edge_arc(aes(width = value, edge_colour = factor(value)), show.legend = FALSE, alpha = 0.5, fold = FALSE) +
+  geom_node_point(aes(color = factor(group))) +
+  geom_node_text(aes(label = name, angle = 90, hjust = "right"), nudge_y = -0.5, color = pal[5], size = 4) +
+  theme_graph(background = pal[4], text_colour = pal[5]) +
+  theme(legend.position = "none") +
+  expand_limits(x = c(-1.2, 1.2), y = c(-5.6, 1.2))
+```
+
+```{css}
+body {
+  background-color: #000;
+  color: #D9D0D3;
+}
+
+h1 {
+  color: #CCBA72;
+}
+
+h2 {
+  color: #8D8680;
+}
+
+body .main-container {
+  max-width: 80vw;
+}
+```
